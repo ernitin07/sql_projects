@@ -1,0 +1,83 @@
+use  sakila
+select * 
+from film
+ 
+ #ALL FILMS WITH RATING PG 13 AND RENTAL RATE <2.99#
+select *
+from film
+where rental_rate <=2.99
+and rating ='PG-13';
+
+#ALL FILMS THAT HAVE DELETED SCENES #
+SELECT*
+FROM film
+where special_features like 'Deleted Scenes';
+
+
+#SELECT CUSTOMER WHO HAVE RENTED MOVIE ON 26 TH JULY 2005#
+
+
+select customer.customer_id, rental.rental_date,customer.first_name
+from rental 
+join customer on 
+customer.customer_id=rental.customer_id
+where date(rental.rental_date)='2005-07-26 '
+
+#all active customers#
+select *
+from customer 
+
+
+#name the cuatomer who rented the dvd on 2005-06-26#
+
+select customer.customer_id,rental.rental_id,
+concat(customer.first_name,' ',customer.last_name)
+from rental
+join customer on 
+customer.customer_id=rental.customer_id
+where date(rental.rental_date)='2005-07-26';
+
+#repeat same for distinct #
+
+
+
+# hw 1 #
+
+# how many distinct last names #
+
+select distinct customer.last_name 
+from customer 
+
+
+#how many rentals do we do on each day #
+
+select date(rental_date),count(*) as rentals_count
+from rental
+group by date(rental_date)
+order by 2 desc
+limit 1; 
+
+
+#list all the sci fi movies in catalogue #
+
+select category.category_id,category.name,film.title
+from category 
+join film_category on
+category.category_id=film_category.category_id
+join film on 
+film.film_id=film_category.film_id
+where name like 'Sci-Fi'
+
+#select customers and how amany movies rented so far #
+
+select *
+from customer 
+
+select*
+from rental
+
+select customer.customer_id,count(rental.rental_id),concat(customer.first_name,' ',customer.last_name)
+from rental 
+join customer on 
+customer.customer_id=rental.customer_id
+group by customer.customer_id
