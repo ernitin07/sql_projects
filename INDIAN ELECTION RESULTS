@@ -1,0 +1,165 @@
+----total seats -----
+select COUNT(DISTINCT(Constituency_ID) ) as total_seats 
+from constituencywise_details 
+
+-----what si totla numeber of seats available in each state ----
+select states.State as state_name , COUNT(DISTINCT(Constituency_ID)) from constituencywise_results
+join statewise_results on constituencywise_results.Parliament_Constituency=statewise_results.Parliament_Constituency
+join states on statewise_results.State_ID=states.State_ID
+group by states.State
+order by 2 desc
+
+-----total seats won by NDA alliance -----
+select sum(case
+when Party IN('Bharatiya Janata Party - BJP', 
+                'Telugu Desam - TDP', 
+				'Janata Dal  (United) - JD(U)',
+                'Shiv Sena - SHS', 
+                'AJSU Party - AJSUP', 
+                'Apna Dal (Soneylal) - ADAL', 
+                'Asom Gana Parishad - AGP',
+                'Hindustani Awam Morcha (Secular) - HAMS', 
+                'Janasena Party - JnP', 
+				'Janata Dal  (Secular) - JD(S)',
+                'Lok Janshakti Party(Ram Vilas) - LJPRV', 
+                'Nationalist Congress Party - NCP',
+                'Rashtriya Lok Dal - RLD', 
+                'Sikkim Krantikari Morcha - SKM'
+				) then[won]
+				else 0
+				end
+				) as_nda_total_sseats_won
+				FROM
+				partywise_results
+
+-----SEATS WON BY NDA ALLIANCE PARTIES ----
+select Party as party_name,
+Won as seats_won
+from partywise_results
+where Party IN('Bharatiya Janata Party - BJP', 
+                'Telugu Desam - TDP', 
+				'Janata Dal  (United) - JD(U)',
+                'Shiv Sena - SHS', 
+                'AJSU Party - AJSUP', 
+                'Apna Dal (Soneylal) - ADAL', 
+                'Asom Gana Parishad - AGP',
+                'Hindustani Awam Morcha (Secular) - HAMS', 
+                'Janasena Party - JnP', 
+				'Janata Dal  (Secular) - JD(S)',
+                'Lok Janshakti Party(Ram Vilas) - LJPRV', 
+                'Nationalist Congress Party - NCP',
+                'Rashtriya Lok Dal - RLD', 
+                'Sikkim Krantikari Morcha - SKM')
+				order by 2 desc
+
+-------SEATS WON BY INDIA ALLIANCE----
+select sum(case
+when Party IN('Indian National Congress - INC',
+                'Aam Aadmi Party - AAAP',
+                'All India Trinamool Congress - AITC',
+                'Bharat Adivasi Party - BHRTADVSIP',
+                'Communist Party of India  (Marxist) - CPI(M)',
+                'Communist Party of India  (Marxist-Leninist)  (Liberation) - CPI(ML)(L)',
+                'Communist Party of India - CPI',
+                'Dravida Munnetra Kazhagam - DMK',
+                'Indian Union Muslim League - IUML',
+                'Nat`Jammu & Kashmir National Conference - JKN',
+                'Jharkhand Mukti Morcha - JMM',
+                'Jammu & Kashmir National Conference - JKN',
+                'Kerala Congress - KEC',
+                'Marumalarchi Dravida Munnetra Kazhagam - MDMK',
+                'Nationalist Congress Party Sharadchandra Pawar - NCPSP',
+                'Rashtriya Janata Dal - RJD',
+                'Rashtriya Loktantrik Party - RLTP',
+                'Revolutionary Socialist Party - RSP',
+                'Samajwadi Party - SP',
+                'Shiv Sena (Uddhav Balasaheb Thackrey) - SHSUBT',
+                'Viduthalai Chiruthaigal Katchi - VCK')
+				then[Won]
+				else 0
+				end) as india_total_seats_won
+				from partywise_results
+
+----- seats won by india alliance party individually-----
+select Party as party_name,Won as seats_won
+from partywise_results
+where Party IN('Indian National Congress - INC',
+                'Aam Aadmi Party - AAAP',
+                'All India Trinamool Congress - AITC',
+                'Bharat Adivasi Party - BHRTADVSIP',
+                'Communist Party of India  (Marxist) - CPI(M)',
+                'Communist Party of India  (Marxist-Leninist)  (Liberation) - CPI(ML)(L)',
+                'Communist Party of India - CPI',
+                'Dravida Munnetra Kazhagam - DMK',
+                'Indian Union Muslim League - IUML',
+                'Nat`Jammu & Kashmir National Conference - JKN',
+                'Jharkhand Mukti Morcha - JMM',
+                'Jammu & Kashmir National Conference - JKN',
+                'Kerala Congress - KEC',
+                'Marumalarchi Dravida Munnetra Kazhagam - MDMK',
+                'Nationalist Congress Party Sharadchandra Pawar - NCPSP',
+                'Rashtriya Janata Dal - RJD',
+                'Rashtriya Loktantrik Party - RLTP',
+                'Revolutionary Socialist Party - RSP',
+                'Samajwadi Party - SP',
+                'Shiv Sena (Uddhav Balasaheb Thackrey) - SHSUBT',
+                'Viduthalai Chiruthaigal Katchi - VCK'
+				)
+				order by 2 desc
+
+------add a new column field to table partywise_results to metion whether the party lies in nda aaliance or india aaliance -----
+
+ALTER TABLE partywise_results
+ADD party_alliance varchar(50);
+
+
+update partywise_results
+set party_alliance= 'INDIA'
+WHERE Party IN('Indian National Congress - INC',
+                'Aam Aadmi Party - AAAP',
+                'All India Trinamool Congress - AITC',
+                'Bharat Adivasi Party - BHRTADVSIP',
+                'Communist Party of India  (Marxist) - CPI(M)',
+                'Communist Party of India  (Marxist-Leninist)  (Liberation) - CPI(ML)(L)',
+                'Communist Party of India - CPI',
+                'Dravida Munnetra Kazhagam - DMK',
+                'Indian Union Muslim League - IUML',
+                'Nat`Jammu & Kashmir National Conference - JKN',
+                'Jharkhand Mukti Morcha - JMM',
+                'Jammu & Kashmir National Conference - JKN',
+                'Kerala Congress - KEC',
+                'Marumalarchi Dravida Munnetra Kazhagam - MDMK',
+                'Nationalist Congress Party Sharadchandra Pawar - NCPSP',
+                'Rashtriya Janata Dal - RJD',
+                'Rashtriya Loktantrik Party - RLTP',
+                'Revolutionary Socialist Party - RSP',
+                'Samajwadi Party - SP',
+                'Shiv Sena (Uddhav Balasaheb Thackrey) - SHSUBT',
+                'Viduthalai Chiruthaigal Katchi - VCK'
+				);
+------ nda alliance -----
+
+update partywise_results
+set party_alliance= 'NDA'
+WHERE Party IN('Bharatiya Janata Party - BJP', 
+                'Telugu Desam - TDP', 
+				'Janata Dal  (United) - JD(U)',
+                'Shiv Sena - SHS', 
+                'AJSU Party - AJSUP', 
+                'Apna Dal (Soneylal) - ADAL', 
+                'Asom Gana Parishad - AGP',
+                'Hindustani Awam Morcha (Secular) - HAMS', 
+                'Janasena Party - JnP', 
+				'Janata Dal  (Secular) - JD(S)',
+                'Lok Janshakti Party(Ram Vilas) - LJPRV', 
+                'Nationalist Congress Party - NCP',
+                'Rashtriya Lok Dal - RLD', 
+                'Sikkim Krantikari Morcha - SKM'
+				);
+
+------ OTHERS---
+
+update partywise_results
+set party_alliance= 'OTHER'
+WHERE party_alliance is null;
+			
