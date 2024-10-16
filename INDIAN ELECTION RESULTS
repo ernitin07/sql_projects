@@ -189,4 +189,15 @@ join constituencywise_results on constituencywise_results.Constituency_ID=consti
 where Constituency_Name='VARANASI'
 ORDER BY constituencywise_details.Total_Votes desc
 
+--------Which parties won the most seats in s State, and how many seats did each party win?----
+select partywise_results.Party,count(constituency_ID) as seats_won
+FROM constituencywise_results
+join partywise_results on partywise_results.Party_ID=constituencywise_results.Party_ID
+join statewise_results on statewise_results.Parliament_Constituency=constituencywise_results.Parliament_Constituency
+join states on states.State_ID=statewise_results.State_ID
+where states.State='Assam'
+group by partywise_results.Party
+order by 2 desc
+
+
 
