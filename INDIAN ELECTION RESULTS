@@ -199,5 +199,66 @@ where states.State='Assam'
 group by partywise_results.Party
 order by 2 desc
 
+---What is the total number of seats won by each party alliance (NDA, I.N.D.I.A, and OTHER) in each state for the India Elections 2024---
+select states.State,
+SUM(case when partywise_results.party_alliance='NDA' then 1 else 0 end ) as nda_seats_won,
+SUM(case when partywise_results.party_alliance='INDIA' then 1 else 0 end ) as india_seats_won,
+SUM(case when partywise_results.party_alliance='OTHER' then 1 else 0 end ) as others_seats_won
+from constituencywise_results
+join partywise_results on partywise_results.Party_ID=constituencywise_results.Party_ID
+join statewise_results on statewise_results.Parliament_Constituency=constituencywise_results.Parliament_Constituency
+join states on states.State_ID=statewise_results.State_ID
+where partywise_results.party_alliance IN('NDA','INDIA','OTHER')
+GROUP BY states.State
+order by states.State desc
+
+----Which candidate received the highest number of EVM votes in each constituency (Top 10)?----
+
+select top 10 
+constituencywise_results.Constituency_Name,Candidate,constituencywise_details.Party,constituencywise_details.EVM_Votes,
+constituencywise_details.Total_Votes from constituencywise_details
+JOIN constituencywise_results ON constituencywise_results.Constituency_ID=constituencywise_details.Constituency_ID
+where constituencywise_details.EVM_Votes= (select max(cd1.EVM_Votes)
+from constituencywise_details as cd1
+WHERE cd1.Constituency_ID = constituencywise_details.Constituency_ID)
+ORDER BY constituencywise_details.EVM_Votes 
+
+---Which candidate won and which candidate was the runner-up in each constituency of State for the 2024 elections?---
+
+WITH RankedCandidates AS (
+    SELECT 
+        cd.Constituency_ID,
+        cd.Candidate,
+        cd.Party,
+        cd.EVM_Votes,
+        cd.Postal_Votes,
+        cd.EVM_Votes + cd.Postal_Votes AS Total_Votes,
+        ROW_NUMBER() OVER (PARTITION BY cd.Constituency_ID ORDER BY cd.EVM_Votes + cd.Postal_Votes DESC) AS VoteRank
+    FROM 
+        constituencywise_details cd
+    JOIN 
+        constituencywise_results cr ON cd.Constituency_ID = cr.Constituency_ID
+    JOIN 
+        statewise_results sr ON cr.Parliament_Constituency = sr.Parliament_Constituency
+    JOIN 
+        states s ON sr.State_ID = s.State_ID
+    WHERE 
+        s.State = 'Maharashtra'
+)
+
+SELECT 
+    cr.Constituency_Name,
+    MAX(CASE WHEN rc.VoteRank = 1 THEN rc.Candidate END) AS Winning_Candidate,
+    MAX(CASE WHEN rc.VoteRank = 2 THEN rc.Candidate END) AS Runnerup_Candidate
+FROM 
+    RankedCandidates rc
+JOIN 
+    constituencywise_results cr ON rc.Constituency_ID = cr.Constituency_ID
+GROUP BY 
+    cr.Constituency_Name
+ORDER BY 
+    cr.Constituency_Name;
+
+
 
 
