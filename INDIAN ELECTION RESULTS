@@ -162,4 +162,31 @@ WHERE Party IN('Bharatiya Janata Party - BJP',
 update partywise_results
 set party_alliance= 'OTHER'
 WHERE party_alliance is null;
-			
+
+
+-----Which party alliance (NDA, I.N.D.I.A, or OTHER) won the most seats across all states?----
+select partywise_results.party_alliance,
+count(constituencywise_results.Constituency_ID) as seats_won
+from constituencywise_results
+join partywise_results ON partywise_results.Party_ID=constituencywise_results.Party_ID
+where partywise_results.party_alliance IN('INDIA','NDA','OTHER')
+GROUP BY partywise_results.party_alliance
+order by seats_won desc
+
+---Winning candidate's name, their party name, total votes, and the margin of victory for a specific state and constituency?---
+select constituencywise_results.Winning_Candidate,constituencywise_results.Total_Votes,constituencywise_results.Margin,partywise_results.Party,
+statewise_results.State,constituencywise_results.Constituency_Name
+from constituencywise_results 
+join partywise_results on partywise_results.Party_ID=constituencywise_results.Party_ID
+join statewise_results on statewise_results.Parliament_Constituency=constituencywise_results.Parliament_Constituency
+join states on states.State_ID=statewise_results.State_ID
+where states.State ='UTTAR PRADESH' AND constituencywise_results.Constituency_Name='VARANASI'
+
+------What is the distribution of EVM votes versus postal votes for candidates in a specific constituency----
+select constituencywise_details.EVM_Votes,constituencywise_details.Postal_Votes,constituencywise_details.Total_Votes,constituencywise_details.Candidate,constituencywise_results.Constituency_Name
+from constituencywise_details
+join constituencywise_results on constituencywise_results.Constituency_ID=constituencywise_details.Constituency_ID
+where Constituency_Name='VARANASI'
+ORDER BY constituencywise_details.Total_Votes desc
+
+
