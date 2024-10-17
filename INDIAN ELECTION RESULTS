@@ -259,6 +259,33 @@ GROUP BY
 ORDER BY 
     cr.Constituency_Name;
 
+------Which candidate won and which candidate was the runner-up in each constituency of State for the 2024 elections?--
+
+with ranked_candidates as
+(
+select constituencywise_details.Candidate,
+constituencywise_details.EVM_Votes,
+constituencywise_details.Postal_Votes,
+constituencywise_details.Total_Votes,
+constituencywise_details.EVM_Votes+constituencywise_details.Postal_Votes AS total_votes,
+row_number()over (partition by constituencywise_details.Constituency_ID  order by constituencywise_details.EVM_Votes + constituencywise_details.Postal_Votes DESC) AS vote_rank
+from constituencywise_details
+join constituencywise_results on constituencywise_results.Constituency_ID=constituencywise_details.Constituency_ID
+join statewise_results on statewise_results.Parliament_Constituency=constituencywise_results.Parliament_Constituency
+join states on states.State_ID=statewise_results.State_ID
+where states.state='Uttar Pradesh'
+)
+select constituencywise_results.Constituency_Name,
+max(case when ranked_candidates.vote_rank=1 then ranked_candidates.Candidate end) as winner_candidate,
+max(case when ranked_candidates.vote_rank=2 then ranked_candidates.Candidate end) as runnerup_candidate
+from ranked_candidates
+join constituencywise_results on constituencywise_results.Constituency_ID=ranked_candidates.Constituency_ID
+group by constituencywise_results.Constituency_Name
+order by constituencywise_results.Constituency_Name
+
+
+
+
 
 
 
